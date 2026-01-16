@@ -1,16 +1,17 @@
 
-clear; clc;
+clear; clc; close all; 
 rng('shuffle');
 
 % ------------------------------------------------------------------------
 % ----------------------------- SCRIPT SETUP -----------------------------
 
 % parameters
-fs = 44100;                  % sampling rate
-stimDur = 0.5;               % duration of stimulus in seconds
-iti = 0.5;                   % inter-trial interval
-trialsPerSide = 20;          % number of trials per side
-freqRange = [300 6000];      % band-limited noise (Hz)
+fs = 44100;                  % sampling rate (hz)
+stimDur = 0.5;               % duration of stimulus (sec)
+iti = 1;                     % inter-trial interval (sec)
+trialsPerSide = 200;         % number of trials per side
+freqRange = [300 6000];      % band-limited noise (hz)
+startwait = 20;              % time to wait before experiment start (sec)
 
 % ------------------------------------------------------------------------
 
@@ -40,6 +41,9 @@ InitializePsychSound(1);
 nrchannels = 2; 
 pahandle = PsychPortAudio('Open', [], 1, 1, fs, nrchannels);
 
+% pause before experiment start
+disp(['Experiment will begin in ', num2str(startwait), ' sec...'])
+WaitSecs(startwait);
 
 % main trial loop
 for i = 1:length(trials)
