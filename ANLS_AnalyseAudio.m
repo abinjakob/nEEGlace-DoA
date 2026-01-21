@@ -19,8 +19,23 @@ fs = str2num(streams{2}.info.nominal_srate);
 markers = streams{1}.time_series; 
 t_markers = streams{1}.time_stamps; 
 
-% epoching data 
-epoch_window = [0 0.5];   
+% pre-processing audio
+audio(abs(audio) < 1e-10) = 0;
+audio(isnan(audio) | isinf(audio)) = 0;
+audio = audio / max(abs(audio),[],'all');  
+% filtering the audio data 
+% HP filtering
+hpFilt = designfilt('highpassiir', 'FilterOrder', 6, 'HalfPowerFrequency', 50, 'SampleRate', fs);
+for ch=1:size(audio,1)
+    audio(ch,:) = filtfilt(hpFilt, audio(ch,:));
+end 
+% LP filtering
+lpFilt = designfilt('lowpassiir', 'FilterOrder', 6, 'HalfPowerFrequency', 10000,'SampleRate', fs);
+for ch=1:size(audio,1)
+    audio(ch,:) = filtfilt(lpFilt, audio(ch,:));
+end 
+% epoching audio data 
+epoch_window = [0 0.85];   
 [epochs, t_epoch] = epochaudio(audio, t_audio, t_markers, fs, epoch_window);
 
 
@@ -76,15 +91,15 @@ end
 figure;
 
 % plot left trials 
-subplot(2,2,1)
+subplot(2,1,1)
+hold on 
 plot(t_epoch, mean( trialsL(1,:,:) ,3), 'r')
-subplot(2,2,2)
 plot(t_epoch, mean( trialsL(2,:,:) ,3), 'b')
 xlabel('Time [sec]'); ylabel('Amplitude'); 
 
 % plot right trials 
-subplot(2,2,3)
-plot(t_epoch, mean( trialsR(1,:,:) ,3), 'r')
-subplot(2,2,4)
+subplot(2,1,2)
+hold on
 plot(t_epoch, mean( trialsR(2,:,:) ,3), 'b')
+plot(t_epoch, mean( trialsR(1,:,:) ,3), 'r')
 xlabel('Time [sec]'); ylabel('Amplitude'); 
