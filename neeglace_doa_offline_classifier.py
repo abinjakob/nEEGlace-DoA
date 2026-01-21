@@ -100,7 +100,7 @@ sd.play(audio.T, fs)
 
 #%% seperate left and right audio trials 
 
-trialsL, trialsR = [],[]
+trialsL, trialsR = [], []
 for i, m in enumerate(markers):
     if m[0] == '1':
         trialsL.append(epochs[:, :, i])
@@ -132,4 +132,5 @@ plt.ylabel("Amplitude")
 
 plt.tight_layout()
 plt.show()
+
 
