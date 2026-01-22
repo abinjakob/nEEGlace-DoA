@@ -9,10 +9,26 @@ import numpy as np
 
 def computeTDOA(epochs, fs, max_tau=0.001):
     """
-    epochs: shape (2, samples, trials)
-    fs: sampling rate
-    max_tau: maximum expected delay in seconds
+    Compute Time Difference of Arrival (TDOA) between two channels using GCC-PHAT.
+
+    Parameters
+    ----------
+    epochs : np.ndarray
+        Shape: (2, samples, trials)
+        EEG or audio signals from 2 sensors. 
+        epochs[0, :, i] = signal from left channel for trial i
+        epochs[1, :, i] = signal from right channel for trial i
+    fs : float
+        Sampling rate in Hz
+    max_tau : float, optional
+        Maximum expected time delay between channels in seconds (default 1 ms)
+
+    Returns
+    -------
+    tdoaFeat : np.ndarray
+        Array of TDOA estimates in seconds, one per trial
     """
+    
     tdoaFeat = []
 
     n_samples = epochs.shape[1]
@@ -28,14 +44,17 @@ def computeTDOA(epochs, fs, max_tau=0.001):
 
         # GCC-PHAT
         R_cross = SIG_L * np.conj(SIG_R)
+        # normalize magnitude to 1 (PHAT weighting)
         R_cross /= np.abs(R_cross) + 1e-15
 
+        # inverse FFT
         cc = np.fft.irfft(R_cross)
-
-        # keep plausible lags
+        # keep only plausible lags
         cc = np.concatenate((cc[-max_shift:], cc[:max_shift+1]))
 
+        # find TDOA
         shift = np.argmax(cc) - max_shift
+        # convert sample delay to seconds
         tau = shift / fs
 
         tdoaFeat.append(tau)
@@ -45,19 +64,37 @@ def computeTDOA(epochs, fs, max_tau=0.001):
         
 def computeILD(epochs, eps=1e-12):
     """
-    epochs: shape (2, samples, trials)
-    returns: ILD per trial in dB
+    Compute Interaural Level Difference (ILD) between two channels for each trial.
+
+    Parameters
+    ----------
+    epochs : np.ndarray
+        Shape: (2, samples, trials)
+        Signal from two channels (e.g., left and right ear / microphone)
+        epochs[0, :, i] = left channel for trial i
+        epochs[1, :, i] = right channel for trial i
+    eps : float, optional
+        Small epsilon added to prevent division by zero (default: 1e-12)
+
+    Returns
+    -------
+    ildFeat : np.ndarray
+        ILD values in dB, one per trial
     """
+    
     ildFeat = []
 
     for i in range(epochs.shape[2]):
         L = epochs[0, :, i]
         R = epochs[1, :, i]
-
+        
+        # compute RMS
         rms_L = np.sqrt(np.mean(L**2))
         rms_R = np.sqrt(np.mean(R**2))
-
+        
+        # compute ILD
         ild = 20 * np.log10((rms_L + eps) / (rms_R + eps))
+        
         ildFeat.append(ild)
 
     return np.array(ildFeat)
