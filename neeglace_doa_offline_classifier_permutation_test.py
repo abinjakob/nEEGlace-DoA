@@ -24,7 +24,6 @@ import os
 import numpy as np
 import pyxdf
 import matplotlib.pyplot as plt
-import sounddevice as sd
 
 from sklearn.metrics import accuracy_score, roc_curve, auc
 from sklearn.model_selection import train_test_split, GridSearchCV
@@ -33,7 +32,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from audioprocessing import HPfilter, LPfilter, epochaudio
-from audiofeatures import computeILD, computeTDOA
+from audiofeatures import computeILD
 
 from sklearn.utils import shuffle
 
@@ -128,7 +127,7 @@ for iRun in range(testTrials):
     
     
     # define a pipeline with preprocessing (scaling) and SVM classifier
-    pipeline = make_pipeline(StandardScaler(), SVC(probability=True))
+    pipeline = make_pipeline(StandardScaler(), SVC())
     
     # parameter grid for SVM
     param_grid = {
@@ -165,12 +164,12 @@ chanceLevel = np.max(classCount) / totalSamples
 
 plt.figure(figsize=(10,8))
 # plot accuracy
-plt.hist(PTacc, bins=40, color='skyblue', edgecolor='black')  # Adjust the number of bins as needed
-# Add a vertical line for the observed accuracy
-plt.axvline(x=modelAcc, color='red', linestyle='dashed', linewidth=1, label='model accuracy')
+plt.hist(PTacc, bins=40, color='skyblue', edgecolor='black')  
+# model performance observed (with real data) 
+plt.axvline(x=modelAcc, color='red', linestyle='dashed', linewidth=3, label='model accuracy')
 plt.axvline(x=chanceLevel, color='magenta', linestyle='dashed', linewidth=1, label='emp chance level')  
 plt.xlim([0,1])  
-plt.title('Accuracy')
+plt.title(f'Model Accuracies with {testTrials} Permutation')
 plt.legend()
 
 

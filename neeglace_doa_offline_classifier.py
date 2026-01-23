@@ -35,8 +35,8 @@ from audiofeatures import computeILD, computeTDOA
 
 # data path
 rootpath = r"L:\Cloud\T-PsyOL\PhD Project\nEEGlace\sourceDoA\Data"
-foldername = "Piloting-22012026"
-filename = "sub-P001_ses-S001_task-task-nearneeglace90sourceclose_run-001_eeg.xdf"
+foldername = "Piloting-23012026"
+filename = "sub-P001_ses-S001_task-bothspeakersingleside_run-001_eeg.xdf"
 
 # load all available streams
 streams, header = pyxdf.load_xdf(os.path.join(rootpath, foldername, filename))
@@ -239,7 +239,7 @@ print(f'ILD + TDOA Accuracy: {accuracy_both*100:.2f}%')
 #%% plotting ROC curve
 
 # predict probabilities for ROC curves
-y_prob_ILD  = clf_ILD.predict_proba(X_test_ILD)[:,1]   # probability of class 1
+y_prob_ILD  = clf_ILD.predict_proba(X_test_ILD)[:,1]   
 y_prob_TDOA = clf_TDOA.predict_proba(X_test_TDOA)[:,1]
 y_prob_both = clf_both.predict_proba(X_test_both)[:,1]
 
@@ -252,8 +252,21 @@ auc_ILD = auc(fpr_ILD, tpr_ILD)
 auc_TDOA = auc(fpr_TDOA, tpr_TDOA)
 auc_both = auc(fpr_both, tpr_both)
 
+
+plt.figure(figsize=(8,10))
+# plot model performance 
+plt.subplot(2,1,1)
+feats = ["ILD", "TDOA", "ILD + TDOA"]
+accvec = [accuracy_ILD, accuracy_TDOA, accuracy_both]
+plotclr = plt.rcParams['axes.prop_cycle'].by_key()['color'][:3]
+plt.bar(feats, accvec, color=plotclr)
+plt.ylim(0, 1)
+plt.ylabel("Accuracy")
+plt.title("Classification Accuracy Comparison")
+plt.show()
+
 # plot ROC curves
-plt.figure(figsize=(8,6))
+plt.subplot(2,1,2)
 plt.plot(fpr_ILD, tpr_ILD, label=f'ILD (AUC = {auc_ILD:.2f})', linewidth=2)
 plt.plot(fpr_TDOA, tpr_TDOA, label=f'TDOA (AUC = {auc_TDOA:.2f})', linewidth=2)
 plt.plot(fpr_both, tpr_both, label=f'ILD+TDOA (AUC = {auc_both:.2f})', linewidth=2)
@@ -265,5 +278,4 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('ROC Curve for Left vs Right Classification')
 plt.legend()
-
 plt.show()
