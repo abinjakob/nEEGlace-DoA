@@ -234,7 +234,7 @@ accuracy_both = accuracy_score(y_test, y_pred_both)
 print('Model Performance Metrics')
 print(f'ILD Only Accuracy: {accuracy_ILD*100:.2f}%')
 print(f'TDOA Only Accuracy: {accuracy_TDOA*100:.2f}%')
-print(f'ILD + TDOA Only Accuracy: {accuracy_both*100:.2f}%')
+print(f'ILD + TDOA Accuracy: {accuracy_both*100:.2f}%')
 
 #%% plotting ROC curve
 
@@ -265,4 +265,5 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('ROC Curve for Left vs Right Classification')
 plt.legend()
+
 plt.show()
