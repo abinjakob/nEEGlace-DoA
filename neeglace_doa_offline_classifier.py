@@ -165,6 +165,8 @@ plt.subplot(2,1,2)
 plt.hist(featTDOA[labels == 0], bins=30, alpha=0.6, label='Left')
 plt.hist(featTDOA[labels == 1], bins=30, alpha=0.6, label='Right')
 plt.legend()
+plt.title('TDOA Features')
+plt.tight_layout()
 
 plt.figure()
 plt.scatter(featILD[labels == 0], featTDOA[labels == 0], label='Left')
@@ -189,9 +191,7 @@ y = labels
 #%% classification using SVM Classifier
 
 # split the dataset into trainning and testing set
-X_dummy, X_dummy_test, y_train, y_test, train_idx, test_idx = train_test_split(
-    X_ILD, labels, np.arange(len(labels)), test_size=0.3, random_state=42, stratify=labels
-)
+X_dummy, X_dummy_test, y_train, y_test, train_idx, test_idx = train_test_split(X_ILD, y, np.arange(len(y)), test_size=0.3, random_state=42, stratify=y)
 
 X_train_ILD = X_ILD[train_idx]
 X_test_ILD  = X_ILD[test_idx]
