@@ -35,8 +35,8 @@ from audiofeatures import computeILD, computeTDOA
 
 # data path
 rootpath = r"L:\Cloud\T-PsyOL\PhD Project\nEEGlace\sourceDoA\Data"
-foldername = "Piloting-16012026"
-filename = "sub-P001_ses-S001_task-far180_run-001_eeg.xdf"
+foldername = "Piloting-22012026"
+filename = "sub-P001_ses-S001_task-task-nearneeglace90sourceclose_run-001_eeg.xdf"
 
 # load all available streams
 streams, header = pyxdf.load_xdf(os.path.join(rootpath, foldername, filename))
@@ -90,10 +90,10 @@ trialsR = np.stack(trialsR, axis=2)
 sd.play(audio.T, fs)
 # sd.stop()
 
-#%% plotting some raw audio with markers 
+#%% plotting some audio with markers 
 
 # duration to plot (sec)
-duration2plot = 30 
+duration2plot = 100 
 
 t0 = t_audio[0]
 idx = (t_audio - t0) <= duration2plot
@@ -165,7 +165,12 @@ plt.subplot(2,1,2)
 plt.hist(featTDOA[labels == 0], bins=30, alpha=0.6, label='Left')
 plt.hist(featTDOA[labels == 1], bins=30, alpha=0.6, label='Right')
 plt.legend()
-plt.title('TDOA distributions')
+
+plt.figure()
+plt.scatter(featILD[labels == 0], featTDOA[labels == 0], label='Left')
+plt.scatter(featILD[labels == 1], featTDOA[labels == 1], label='Right')
+plt.legend()
+plt.title('Feature Space')
 
 #%% prepare data for classification
 
@@ -231,7 +236,7 @@ print(f'ILD Only Accuracy: {accuracy_ILD*100:.2f}%')
 print(f'TDOA Only Accuracy: {accuracy_TDOA*100:.2f}%')
 print(f'ILD + TDOA Only Accuracy: {accuracy_both*100:.2f}%')
 
-#%% plotting ROC curves
+#%% plotting ROC curve
 
 # predict probabilities for ROC curves
 y_prob_ILD  = clf_ILD.predict_proba(X_test_ILD)[:,1]   # probability of class 1
@@ -254,8 +259,8 @@ plt.plot(fpr_TDOA, tpr_TDOA, label=f'TDOA (AUC = {auc_TDOA:.2f})', linewidth=2)
 plt.plot(fpr_both, tpr_both, label=f'ILD+TDOA (AUC = {auc_both:.2f})', linewidth=2)
 
 plt.plot([0,1], [0,1], 'k--', linewidth=1, label='Chance line') 
-plt.xlim([0,1])
-plt.ylim([0,1])
+plt.xlim([-0.02,1.02])
+plt.ylim([-0.02,1.02])
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('ROC Curve for Left vs Right Classification')
